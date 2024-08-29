@@ -1,1 +1,36 @@
-https://openexchangerates.org/api/latest.json?app_id=954bb66de4504239bd765093d698aefb
+function fetch_open_exchange_rates($endpoint = 'currencies') {
+    $api_key = ; // Replace with your actual API key
+    $url = "https://openexchangerates.org/api/{$endpoint}.json?app_id={$api_key}";
+
+    $response = wp_remote_get($url);
+
+    if (is_wp_error($response)) {
+        return 'Failed to retrieve data';
+    }
+
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        return 'Failed to decode JSON';
+    }
+
+    return $data;
+}
+
+function display_currency_rates() {
+    $data = fetch_open_exchange_rates('currencies');
+
+    if (is_array($data)) {
+        echo '<ul>';
+        foreach ($data as $currency_code => $currency_name) {
+            echo "<li>{$currency_code}: {$currency_name}</li>";
+        }
+        echo '</ul>';
+    } else {
+        echo $data;
+    }
+}
+
+add_shortcode('currency_rates', 'display_currency_rates');
+
